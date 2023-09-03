@@ -58,7 +58,7 @@ jobs:
       run: pip install "conan<2.0" pytest && conan --version
 
     - name: Install Conan Profile
-      run: conan profile new default --detect
+      run: conan profile new default --detect --force
     
     - name: Install Conan Dependencies
       run: mkdir ${{ github.workspace }}/build && cd build && conan install .. --build=missing
