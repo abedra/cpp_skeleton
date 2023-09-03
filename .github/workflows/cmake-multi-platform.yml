@@ -58,7 +58,7 @@ jobs:
       run: pip install "conan<2.0" pytest && conan --version
     
     - name: Install Conan Dependencies
-      run: mkdir ${{ github.workspace }}/build && cd build && conan install .. --build=missing -s compiler=${{ matrix.c_compiler }}
+      run: mkdir ${{ github.workspace }}/build && cd build && conan install .. --build=missing
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
