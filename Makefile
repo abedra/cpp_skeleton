@@ -1,39 +1,36 @@
-BUILD_DIR=cmake-build-debug
-RELEASE_DIR=cmake-build-release
+SHELL := /bin/bash
+
+guard-%:
+	@ if [ "${${*}}" = "" ]; then \
+		echo "Environment variable '$*' is not set"; \
+		exit 1; \
+	fi
 
 default: setup
 
-.PHONY: reset_vcs
-reset_vcs:
-	rm -rf .git
-	git init
-
-.PHONY: conan
-conan:
-	conan install . -if $(BUILD_DIR) --profile=default --build=missing
-
 .PHONY: setup
-setup:
-	mkdir -p $(BUILD_DIR)
-	conan install . -if $(BUILD_DIR) --profile=default --build=missing
-	cmake -B$(BUILD_DIR) -H. -DCMAKE_BUILD_TYPE=Debug
+setup: guard-BUILD_TYPE
+	uv sync
+	uv run conan profile detect || true
+	uv run conan install . --output-folder=build --build=missing --profile:host=conan_$(BUILD_TYPE) --profile:build=conan_$(BUILD_TYPE)
+	cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=$(shell echo $(BUILD_TYPE) | sed 's/^./\U&/') -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+.PHONY: build
+build:
+	cmake --build build -j $(( $(nproc) - 2 ))
+
+.PHONY: test
+test: build
+	./build/tests/tests
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf .venv build
 
-build:
-	cmake --build $(BUILD_DIR) -j
-	$(BUILD_DIR)/bin/tests
+.PHONY: docker-ubuntu
+docker-ubuntu:
+	docker build . -t cpp_skeleton_ubuntu -f docker/ubuntu/Dockerfile
 
-.PHONY: test
-test:
-	$(BUILD_DIR)/bin/tests
-
-.PHONY: release
-release:
-	mkdir -p $(RELEASE_DIR)
-	conan install . -if $(RELEASE_DIR) --profile=default --build=missing
-	cmake -B$(RELEASE_DIR) -H. -DCMAKE_BUILD_TYPE=Release
-	cmake --build $(RELEASE_DIR) -j
-	$(RELEASE_DIR)/bin/tests
+.PHONY:
+docker-rocky:
+	docker build . -t cpp_skeleton_rocky -f docker/rocky/Dockerfile
