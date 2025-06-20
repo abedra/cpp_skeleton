@@ -1,5 +1,0 @@
-add_executable(tests test/TestWiring.cpp)
-include(CTest)
-include(Catch)
-catch_discover_tests(tests)
-target_link_libraries(tests ${CONAN_LIBS})
