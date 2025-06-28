@@ -16,7 +16,7 @@ Complete setup instructions for the latest versions of Ubuntu and Rocky Linux ca
 ```shell
 git clone --depth 1 https://github.com/abedra/cpp_skeleton <project_name>
 cd <project_name>
-make reset_vcs
+NAME=<project_name> make bootstrap 
 ```
 
 ## Installing Dependencies
