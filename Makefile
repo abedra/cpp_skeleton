@@ -37,3 +37,13 @@ docker-ubuntu:
 .PHONY:
 docker-rocky:
 	docker build . -t cpp_skeleton_rocky -f docker/rocky/Dockerfile
+
+.PHONY: intel
+intel:
+	ln -sf conan_debug_intel conan_debug
+	ln -sf conan_release_intel conan_release
+
+.PHONY: apple
+apple:
+	ln -sf conan_debug_apple conan_debug
+	ln -sf conan_release_apple conan_release
